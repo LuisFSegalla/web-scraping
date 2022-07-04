@@ -27,13 +27,21 @@ def getCardInfo(soup):
         efect=efect[0].text.strip()
     else:
         efect=''
+    CMC = soup.findAll('span',class_='card-text-mana-cost')
+    if(len(CMC)>0):
+        CMC = CMC[0].text.strip() #CMC
+    else:
+        CMC = '0'
+    stats = soup.findAll('div',class_="card-text-stats")
+    if(len(stats)>0):
+        stats = stats[0].text.strip()
+    else:
+        stats = ''
     type = soup.findAll('p',class_="card-text-type-line")[0].text.strip().split(' — ')
     primarytype = type[0]
-    if((primarytype in typesWithoutCMC) == False):
-        CMC = soup.findAll('span',class_='card-text-mana-cost')[0].text.strip() #CMC
-        if(primarytype in typesWithStats):
-            subtype = type[1]
-            stats = soup.findAll('div',class_="card-text-stats")[0].text.strip()      #stats
+    if(primarytype in typesWithStats):
+        subtype = type[1]
+
     return name, efect, CMC, primarytype, subtype, stats
 # =============================================================================
 # This function runs through the set webpage and separetes the URL of each card in the set
@@ -56,7 +64,7 @@ def saveData(CardsURL,SetName):
     filename = ((SetName + "_Cards_Info.txt"))
     print("Criando o arquivo: ", filename)
     file = open((filename), "w", encoding="utf-8")
-    file.write('name, efect, CMC, primarytype, subtype,stats\n')
+    file.write('name, CMC, primarytype, subtype,stats, efect\n')
     for i in range(len(CardsURL)):
         print(i)
         CardPage = requests.get(CardsURL[i])
