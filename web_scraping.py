@@ -7,6 +7,7 @@ Created on Wed Jun 29 11:20:16 2022
 
 from bs4 import BeautifulSoup
 import requests
+import numpy as np
 
 typesWithStats  = ['Creature', 'Legendary Creature', 'Snow Creature', 'Artifact Creature', 'Legendary Artifact Creature', 'Enchantment Creature', 'Legendary Enchantment Creature', 'Legendary Planeswalker']
 typesWithoutCMC = ['Land', 'Basic Land', 'Legendary Land', 'Snow Land', 'Basic Snow Land', 'Artifact Land']
@@ -66,7 +67,6 @@ def saveData(CardsURL,SetName):
     file = open((filename), "w", encoding="utf-8")
     file.write('name, CMC, primarytype, subtype,stats, efect\n')
     for i in range(len(CardsURL)):
-        print(i)
         CardPage = requests.get(CardsURL[i])
         html = CardPage.content
         soup = BeautifulSoup(html, "html.parser")
@@ -75,16 +75,30 @@ def saveData(CardsURL,SetName):
     
     file.close()
 
-
 # =============================================================================
 #  Main part of the code
 # =============================================================================
 specialChars = ":'<>" #used to allow the creation of files in a windows OS
-SetURL = 'https://scryfall.com/sets/mh2'
-SetName, CardsURL = getCardsURL(SetURL)
+SiteURL = 'https://scryfall.com/sets'
+reqs = requests.get(SiteURL)
+soup = BeautifulSoup(reqs.text, 'html.parser')
+ 
+SetsURL = []
+for link in soup.find_all('a'):
+    var = link.get('href')
+    if(bool(var)):      
+        if('https://scryfall.com/sets/' in link.get('href')):
+            SetsURL.append(link.get('href'))
 
-for specialChar in specialChars:
-  SetName = SetName.replace(specialChar, '_')
-  SetName = SetName.replace(" ","_")
+SetsURL=np.unique(SetsURL)
 
-saveData(CardsURL,SetName)
+# =============================================================================
+for i in range(len(SetsURL)):
+    SetName, CardsURL = getCardsURL(SetsURL[i])
+    for specialChar in specialChars:
+        SetName = SetName.replace(specialChar, '_')
+        SetName = SetName.replace(" ","_")
+    saveData(CardsURL,SetName)
+
+
+
