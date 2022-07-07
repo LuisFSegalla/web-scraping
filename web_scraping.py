@@ -40,7 +40,7 @@ def getCardInfo(soup):
         stats = ''
     type = soup.findAll('p',class_="card-text-type-line")[0].text.strip().split(' — ')
     primarytype = type[0]
-    if(primarytype in typesWithStats):
+    if((primarytype in typesWithStats) and (len(type)>1)):
         subtype = type[1]
 
     return name, efect, CMC, primarytype, subtype, stats
@@ -61,8 +61,8 @@ def getCardsURL(url):
 # =============================================================================
 # 
 # =============================================================================
-def saveData(CardsURL,SetName):
-    filename = ((SetName + "_Cards_Info.txt"))
+def saveData(CardsURL,SetName,filepath):
+    filename = ((filepath + SetName + "_Cards_Info.txt"))
     print("Criando o arquivo: ", filename)
     file = open((filename), "w", encoding="utf-8")
     file.write('name, CMC, primarytype, subtype,stats, efect\n')
@@ -80,6 +80,7 @@ def saveData(CardsURL,SetName):
 # =============================================================================
 specialChars = ":'<>" #used to allow the creation of files in a windows OS
 SiteURL = 'https://scryfall.com/sets'
+filepath = r'C:\Users\luisf\Documents\python\files'
 reqs = requests.get(SiteURL)
 soup = BeautifulSoup(reqs.text, 'html.parser')
  
@@ -91,14 +92,13 @@ for link in soup.find_all('a'):
             SetsURL.append(link.get('href'))
 
 SetsURL=np.unique(SetsURL)
-
 # =============================================================================
 for i in range(len(SetsURL)):
     SetName, CardsURL = getCardsURL(SetsURL[i])
     for specialChar in specialChars:
         SetName = SetName.replace(specialChar, '_')
         SetName = SetName.replace(" ","_")
-    saveData(CardsURL,SetName)
+    saveData(CardsURL,SetName,filepath)
 
 
 
