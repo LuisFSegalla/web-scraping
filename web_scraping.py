@@ -22,6 +22,7 @@ def getCardInfo(soup):
     primarytype = ''
     subtype = ''
     stats = ''
+    amorcito = ''
     name   = soup.findAll('span',class_='card-text-card-name')[0].text.strip() #name
     efect = soup.findAll('div',class_="card-text-oracle")     #effect
     if(len(efect)>0):
